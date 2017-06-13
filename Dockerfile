@@ -11,10 +11,8 @@ RUN apk upgrade
 
 # Install OS wide packages
 RUN apk add bash
-RUN apk add git
 RUN apk add python
 RUN apk add py-pip
-RUN apk add wget
 RUN apk add vim
 
 # Install application wide packages
