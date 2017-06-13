@@ -16,10 +16,10 @@ RUN apk add py-pip
 RUN apk add vim
 
 # Install application wide packages
-RUN pip install -r requirements.txt
+RUN pip install -r app/requirements.txt
 
 # Execute script as a global program
-RUN ln -s /code/main.py /usr/local/bin/fsa-analyzer
+RUN ln -s /code/app/main.py /usr/local/bin/fsa-analyzer
 RUN chmod +x /usr/local/bin/fsa-analyzer
 
 # Force containter to stay up fornt
