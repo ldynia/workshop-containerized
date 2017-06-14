@@ -2,6 +2,7 @@ FROM alpine:3.6
 
 MAINTAINER Lukasz Dynowski ludd@cbs.dtu.dk
 
+# Copy app dir form host into image
 COPY ./app /app
 WORKDIR /app
 
@@ -13,7 +14,6 @@ RUN apk upgrade
 RUN apk add bash
 RUN apk add python
 RUN apk add py-pip
-RUN apk add vim
 
 # Install application wide packages
 RUN pip install -r requirements.txt
@@ -22,5 +22,5 @@ RUN pip install -r requirements.txt
 RUN ln -s /app/main.py /usr/local/bin/fsa-analyzer
 RUN chmod +x /usr/local/bin/fsa-analyzer
 
-# Force containter to stay up fornt
-#CMD ["bash", "scripts/startup.sh"]
+# Startup script
+#CMD ["bash", "/app/scripts/startup.sh"]
