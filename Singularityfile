@@ -1,0 +1,29 @@
+Bootstrap: docker
+From: alpine:3.6
+
+%runscript
+
+exec echo "The runscript is the containers default runtime command!"
+
+%labels
+AUTHOR ludd@cbs.dtu.dk
+
+%post
+
+# Install packages
+apk update
+apk add git
+apk add bash
+apk add python
+apk add py-pip
+
+# Clone git repo and remove git repo
+git clone https://github.com/ldynia/containerized-workshop
+mv /containerized-workshop/app /app
+rm -rf /containerized-workshop
+
+# Execute script as a global program
+ln -s /app/main.py /usr/local/bin/fsa-analyzer
+chmod +x /usr/local/bin/fsa-analyzer
+
+echo "The post section is where you can install, and configure your container."

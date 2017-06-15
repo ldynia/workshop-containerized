@@ -2,8 +2,8 @@ version: '3'
 
 services:
 
-  webapp:
-    image: ldynia/conteneraized-workshop:1.0
+  application:
+    image: ldynia/conteneraized-workshop:2.0
     build: .
     restart: always
     container_name: demo

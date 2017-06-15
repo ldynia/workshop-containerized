@@ -33,11 +33,11 @@ except AssertionError as err:
 
 stats = Statistic(DATA_FILE)
 
-time.sleep(5)
+# time.sleep(5)
 
 statistics = {
-    # 'codons': stats.count_codons(),
-    'nucleotides': stats.count_nucleotides(),
+    # 'codons_count': stats.count_codons(),
+    'nucleotides_count': stats.count_nucleotides(),
 }
 
 print(json.dumps(statistics))

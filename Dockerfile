@@ -23,4 +23,4 @@ RUN ln -s /app/main.py /usr/local/bin/fsa-analyzer
 RUN chmod +x /usr/local/bin/fsa-analyzer
 
 # Startup script
-#CMD ["bash", "/app/scripts/startup.sh"]
+CMD ["bash", "/app/scripts/startup.sh"]
