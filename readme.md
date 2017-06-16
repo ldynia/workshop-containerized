@@ -138,7 +138,14 @@ user@machine:~/containerized-workshop/app$ docker run -it alpine:3.6
 / # ls-l
 ```
 
-*"Houston we got a problem."* Didn't we install python and create `hello.py` script?. (Yes we did) So why is it gone? The reason is that images don't persist data (unless you put it there during build process). What actually happened is we run docker image for the second time and docker created a new container! Don't worry your data is there you just have to start `hardcore_swirles` container -I will show you how to start docker container later on.
+*"Houston we got a problem."* Didn't we install python and create `hello.py` script?. (Yes we did) So why is it gone? The reason is that images don't persist data (unless you put it there during build process). What actually happened is we run docker image for the second time and docker created a new container! Don't worry your data is there you just have to run our `yo!` program against `hardcore_swirles` container.
+
+
+```
+# Run yo! programm against docekr container
+user@machine:~/containerized-workshop/app$ docker exec hardcore_swirles yo!
+docker rocks!
+```
 
 
 ## Docker Image - Part II - Dockerfile
@@ -198,7 +205,7 @@ Let's run our newly created image and see if the program works. At the same time
 
 ```
 # Run our program
-user@machine:~/containerized-workshop$ docker run --name playground ldynia/conteneraized-workshop:1.0 fsa-analyzer /app/data/dna.fsa | python -m json.tool
+user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:1.0 fsa-analyzer /app/data/dna.fsa | python -m json.tool
 {
     "nucleotides": {
         "A": 333,
@@ -213,12 +220,12 @@ user@machine:~/containerized-workshop$ docker run --name playground ldynia/conte
 # While our program is running execute `docker ps`
 user@machine:~/containerized-workshop$ docker ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS              PORTS               NAMES
-db8b56d90a48        ldynia/conteneraized-workshop:1.0   "fsa-analyzer /app..."   2 seconds ago       Up 1 second                             playground
+db8b56d90a48        ldynia/conteneraized-workshop:1.0   "fsa-analyzer /app..."   2 seconds ago       Up 1 second                             sharp_brown
 
 # After program prodiced output run `docker ps` again
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS              PORTS               NAMES
 ```
-As you can see our *playground* container was visable for 5 seconds and disappeared right after our program ended. There is a way how to keep container up (running) and I will show you how to do it in **Program - Part II**
+As you can see our *sharp_brown* container was visable for 5 seconds and disappeared right after our program ended. There is a way how to keep container up (running) and I will show you how to do it in **Program - Part II**
 
 ## Docker Hub
 Since we agree that our program is a "break throught" in scientific world we will share it. To share your image with the whole world, you have to push it to [dockerhub](https://hub.docker.com) (you need to have an account there).
@@ -246,6 +253,9 @@ user@machine:~/containerized-workshop$ docker push ldynia/conteneraized-workshop
 Now everyone in the world can download your image and run it as a container.
 
 ```
+# Remove image from your machine
+user@machine:~/containerized-workshop$ docker rmi -f ldynia/conteneraized-workshop:1.0
+
 # To pull image from dockerhub execute bellow command
 user@machine:~/containerized-workshop$ docker pull ldynia/conteneraized-workshop:1.0
 ```
