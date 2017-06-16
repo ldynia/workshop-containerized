@@ -335,26 +335,26 @@ Let's open two terminals. In one termianl you will run image and in other you wi
 **conteneraized-workshop:1.0**
 ```
 # Run image detach -in first terminal
-user@machine:~/containerized-workshop$ docker run --name container1 -d ldynia/conteneraized-workshop:1.0
+user@machine:~/containerized-workshop$ docker run --name container1.0 -d ldynia/conteneraized-workshop:1.0
 
 # Display running containers in second terminal
 user@machine:~/containerized-workshop$ docker ps
 CONTAINER ID        IMAGE                               COMMAND             CREATED                  STATUS                  PORTS               NAMES
-a28dd7cecf80        ldynia/conteneraized-workshop:1.0   "/bin/sh"           Less than a second ago   Up Less than a second                       container1
+a28dd7cecf80        ldynia/conteneraized-workshop:1.0   "/bin/sh"           Less than a second ago   Up Less than a second                      container1.0
 ```
 
 **conteneraized-workshop:2.0**
 ```
 # Run image detach -in first terminal
-user@machine:~/containerized-workshop$ docker run --name container2 -d ldynia/conteneraized-workshop:2.0
+user@machine:~/containerized-workshop$ docker run -d --name container2.0 ldynia/conteneraized-workshop:2.0
 
 # Display running containers in second terminal
 user@machine:~/containerized-workshop$ docker ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS              PORTS               NAMES
-f3ddc0056c60        ldynia/conteneraized-workshop:2.0   "bash /app/scripts..."   3 seconds ago       Up 2 seconds                            container2
+f3ddc0056c60        ldynia/conteneraized-workshop:2.0   "bash /app/scripts..."   3 seconds ago       Up 2 seconds                            container2.0
 ```
 
-Now you can see that `container2` (conteneraized-workshop:2.0) is up and running where, container `container1` (conteneraized-workshop:1.0) was exited straight after execution.
+Now you can see that `container2.0` (conteneraized-workshop:2.0) is up and running where, container `container1.0` (conteneraized-workshop:1.0) was exited straight after execution.
 
 ## Docker Container - Part II
 
@@ -369,7 +369,7 @@ Interacting with a container is just like interacting with an image. Compare bel
 user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:1.0 fsa-analyzer /app/data/dna.fsa
 
 # Run fsa-analyzer against the container
-user@machine:~/containerized-workshop$ docker exec container2 fsa-analyzer /app/data/dna.fsa
+user@machine:~/containerized-workshop$ docker exec container2.0 fsa-analyzer /app/data/dna.fsa
 ```
 
 ## Docker Volumes
