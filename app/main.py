@@ -33,7 +33,7 @@ except AssertionError as err:
 
 stats = Statistic(DATA_FILE)
 
-# time.sleep(5)
+time.sleep(5)
 
 statistics = {
     # 'codons_count': stats.count_codons(),
