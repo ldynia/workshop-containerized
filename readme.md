@@ -417,7 +417,7 @@ Let's open two terminals. In one terminal you will create a container with run i
 
 ```
 # Run image detach -in first terminal
-user@machine:~/containerized-workshop$ docker run --name container1.0 -d ldynia/conteneraized-workshop:1.0
+user@machine:~/containerized-workshop$ docker run -d --name container1.0 ldynia/conteneraized-workshop:1.0
 
 # Display running containers in second terminal
 user@machine:~/containerized-workshop$ docker ps
