@@ -1,45 +1,32 @@
 # Containerized Workshop
-This repository was created as a demo project to demonstrate usage of containerized technologies ([docker](https://docs.docker.com/) and [singularity](http://singularity.lbl.gov/)). Audience of this project are scientists, phds, developer who build tools (software) and would like to share it and suport validation of scientific papers by validating it in a reproducible way.
 
-Aim of this project is to teach audience the best practices on how to package, distribute and share software with containerized technologies.
+This repository is a tutorial that demonstrates usage of containerized technologies such [docker](https://docs.docker.com/) and [singularity](http://singularity.lbl.gov/).
+
+Audience of this project are scientists, phds, developers who build software (tools). Containerized technologies allows scientist (developers) to packages and distribute theirs software. Consequences of this practice are that results of a scientific paper can be reproducible.
+
+Aim of this project is to teach audience the best practices on how to use containerized technologies. After finishing this tutorial you will know how to package, distribute and share yours software (tools) using [docker](https://docs.docker.com/) and [singularity](http://singularity.lbl.gov/).
 
 # Docker
+
 ## Requirements
-Bellow requirements have to be full field.
-* [git](https://git-scm.com/downloads) - installed
-* [docker](https://docs.docker.com/) - installed
-* [dockerhub](https://hub.docker.com/) account
-* [docker-compose](https://docs.docker.com/compose/install/#alternative-install-options) account
-* [pytohn](https://www.python.org/downloads/) -installed
-* [pip](https://pypi.python.org/pypi/pip) -installed
-* [singularity](http://singularity.lbl.gov/) -installed
-* sudo/root access yours machine
 
-**Check**
-```
-# Check if docker service is running
-user@machine:~$ sudo service docker status
-[sudo] password for user:
-● docker.service - Docker Application Container Engine
-   Loaded: loaded (/lib/systemd/system/docker.service; enabled; vendor preset: enabled)
-   Active: active (running) since Tue 2017-06-13 16:41:02 CEST; 21h ago
+Before you start tutorial you have to fulfilled below requirements.
 
+- [git](https://git-scm.com/downloads) - installed
+- [docker](https://docs.docker.com/) - installed
+- [dockerhub](https://hub.docker.com/) account
+- [docker-compose](https://docs.docker.com/compose/install/#alternative-install-options) account
+- [pytohn](https://www.python.org/downloads/) -installed
+- [pip](https://pypi.python.org/pypi/pip) -installed
+- [singularity](http://singularity.lbl.gov/) -installed
+- sudo/root access yours machine
 
-# Check if user belongs to docker group
-user@machine:~$ groups
-adm sudo staff users vboxusers docker
+## Assumption
 
-# Check if user belongs to docker group
-user@machine:~$ groups
-adm sudo staff users vboxusers docker
-
-# Check if singularit is installed
-user@machine:~/containerized-workshop$ singularity --version
-2.3-dist
-```
-
+Workshop base on the assumption that all points in requirements are fulfilled.
 
 ## Git
+
 Execute bellow instructions.
 
 ```
@@ -53,18 +40,24 @@ user@machine:~$ git clone https://github.com/ldynia/containerized-workshop
 user@machine:~$ cd containerized-workshop
 
 # Remove these files
-user@machine:~/containerized-workshop$ rm -rf composer-app.yml Dockerfile Singularityfile app/scripts/
-
+user@machine:~/containerized-workshop$ rm -rf docker-compose.yml Dockerfile Singularityfile app/scripts/
 ```
+
 ## Program - Part I
-Let me introduce you to a program that saves lives. The program is very simple. Input of the program is `*.fsa` file. Output of the program is count of nucleotides and codons that were found in a `*fsa` file. **Note:** Program returns output after 5s -this is an intended behavior.
+
+Let me introduce you to our program -program that saves lives. Our program is very simple and works like this. Program takes as an input a `*.fsa` file, and returns count of nucleotides and codons. **Note:** Program returns output after 5s -this is an intended behavior.
 
 To see how our program works please execute bellow instructions.
+
 ```
 # Go to app directory
 user@machine:~/containerized-workshop$ cd app
 
-# Run program and pritify its output
+# Run program
+user@machine:~/containerized-workshop/app$ python main.py data/dna.fsa
+{"nucleotides_count": {"A": 333, "C": 454, "T": 303, "G": 469}}
+
+# Or run program and pritify its output
 user@machine:~/containerized-workshop/app$ python main.py data/dna.fsa | python -m json.tool
 {
     "nucleotides": {
@@ -74,86 +67,168 @@ user@machine:~/containerized-workshop/app$ python main.py data/dna.fsa | python 
         "T": 303
     }
 }
+
+# Go back to containerized-workshop directory
+user@machine:~/containerized-workshop/app$ cd ..
 ```
 
 ## Docker Image - Part I
-Let's start with the definition of an **IMAGE** file. An image is an **executable file (tar file or sparse file) that contains a bunch of tools (software), environment variables, configuration files, source code installed on top of a Linux distribution**.
 
-Let's download our first docker image :)
+Let's start with the definition of an **IMAGE** file. An image is an **executable file (tar file or sparse file) that contains a bunch of tools (software), environment variables, configuration files, source code installed on top of a Linux distribution**. I think about an image as it was a blueprint of a house -with one blueprint you can build infinite number of houses.
+
+Let's download our first docker image. The image that we will download will be the image with Alpine Linux distribution.
+
 ```
 # Pull alpine linux image from dockerhub
-user@machine:~/containerized-workshop/app$ docker pull alpine:3.6
+user@machine:~/containerized-workshop$ docker pull alpine:3.6
 
 # List all available images
-user@machine:~/containerized-workshop/app$ docker images
+user@machine:~/containerized-workshop$ docker images
 REPOSITORY          TAG                 IMAGE ID            CREATED             SIZE
 alpine              3.6                 a41a7446062d        2 weeks ago         3.97MB
 ```
 
 ## Docker Container - Part I
-Notion of image is cool because you can literally pack into it your's tools such as, source code, config files, other software etc... However, it gets even better than that. You can interact with an image!
 
+An image that runs a process is called **CONTAINER**. Other words, a container is a **runtime instance of an image**. I think about a container as it was a real physical object -a place where you can get it and start furnishing it.
 
- An image that runs a process is called **CONTAINER**. Other words, a container is a **runtime instance of an image**.
+A container is an awesome thing. You can literally pack into it your source code, config files, data files, other software, etc... and it will persist those data. An image however once is created (build) will not persist data. **Remember an image is the blueprint a container is the real thing!**
 
- Saying that let's get going.
+Saying that let's get going, and let's create our first container.
 
 ```
-# Let's run image with alpine distribution, and install there python.
+# Let's run downloaded image, and let's install there python.
 # After installation we will create hello.py script to verify that python works.
-user@machine:~/containerized-workshop/app$ docker run -it alpine:3.6
+user@machine:~/containerized-workshop$ docker run -it alpine:3.6
 / # apk update
 / # apk add python
 / # echo -e "#!/usr/bin/python \n\nprint('docker rocks!')" > hello.py
 / # ls -l
 / # python hello.py
-/ # cat hello.py
 / # ln -s /hello.py /usr/local/bin/yo!
 / # chmod +x /usr/local/bin/yo!
 / # yo!
 docker rocks!
 ```
 
-At any time you can check how many running containers docker is running. You will see that a container has a name (*hardcore_swirles*) and is associated with the image.
+
+Remember that ran image is called **container**. At any time you can check how many containers docker is running with `docker ps` command. You will see that a container has an id, a name (*angry_swanson*) and image associated with it, as well as other information.
 ```
 # Open new terminal and list running containers.
 user@machine:~$ docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
-878469647aa4        alpine:3.6          "/bin/sh"           About a minute ago   Up About a minute                       hardcore_swirles
+878469647aa4        alpine:3.6          "/bin/sh"           About a minute ago   Up About a minute                       angry_swanson
 ```
 
-To exit a container press `Ctrl+D`
+To exit our container press `Ctrl+D`
 
 ```
 docker rocks! (Ctrl + D)
-user@machine:~/containerized-workshop/app$
+user@machine:~/containerized-workshop$
 ```
 
-We will run our image again and we will execute our `hello.py` again.
+With `Ctrl + D` we exited (and stopped) *angry_swanson* container. So let's check if our container is running. To do that we will execute `docker ps` again.
 
 ```
-user@machine:~/containerized-workshop/app$ docker run -it alpine:3.6
-/ # python hello.py
-/bin/sh: python: not found
-/ # ls-l
+# List all running containers
+user@machine:~$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
 ```
 
-*"Houston we got a problem."* Didn't we install python and create `hello.py` script?. (Yes we did) So why is it gone? The reason is that images don't persist data (unless you put it there during build process). What actually happened is we run docker image for the second time and docker created a new container! Don't worry your data is there you just have to run our `yo!` program against `hardcore_swirles` container.
+No surprises there. The question is what happened to the container. Was it deleted with the moment when we stopped it? Was it abducted by aliens? and finally was 9.11 an inside job?
 
+Being serious now. To see stopped containers execute bellow command.
 
 ```
-# Run yo! programm against docekr container
-user@machine:~/containerized-workshop/app$ docker exec hardcore_swirles yo!
+# List all stopped containers
+user@machine:~/containerized-workshop$ docker ps -a
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
+878469647aa4        alpine:3.6          "/bin/sh"           About an hour ago   Exited (0) 40 minutes ago                       angry_swanson
+```
+
+As we can see *angry_swanson* is still there. The question is can we bring back to live and run our `yo!` program? Yes we can to start a container execute bellow command.
+
+```
+# Start container
+user@machine:~/containerized-workshop$ docker start angry_swanson
+
+# List all running containers
+user@machine:~$ docker ps
+CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
+878469647aa4        alpine:3.6          "/bin/sh"           About an hour ago   Up 4 minutes                            angry_swanson
+```
+
+Container are awesome because you can interact with them. To interact with a container you use `exec` command. Let's exec our `yo!` program that we created.
+
+```
+# Run yo! program against docker container
+user@machine:~/containerized-workshop$ docker exec angry_swanson yo!
 docker rocks!
 ```
 
-
-## Docker Image - Part II - Dockerfile
-We discovered that our program is the *"real deal"* scientists love it, a monk opened a champaign and a vegan ate his first steak. ([Leeroy Jenkins!!!!](https://www.youtube.com/watch?v=hooKVstzbz0))
-It is fun to run someone else's images but, it is even cooler to build own image. Let's build one by flollowing bellow instructions.
+Remember that exec works only with running container. Let's see what will happened when we will stop a container.
 
 ```
-user@machine:~/containerized-workshop/app$ cd ..
+# Stop container
+user@machine:~/containerized-workshop$ docker stop angry_swanson
+
+# Run exec against stopped container
+user@machine:~/containerized-workshop$ docker exec angry_swanson yo!
+Error response from daemon: Container 878469647aa4611b36de1f97a8e9d1273fbeb228ac355777e4e1b02e118fa272 is not running
+```
+
+Here is the best part about containers. You can hook in into a container and mess around. Let me demonstrate.
+
+```
+# Start angry_swanson again
+user@machine:~/containerized-workshop$ docker start angry_swanson
+
+# Hook in into container
+user@machine:~/containerized-workshop$ docker exec -it angry_swanson sh
+/ # ls -l
+total 56
+drwxr-xr-x    2 root     root          4096 May 25 15:18 bin
+drwxr-xr-x    5 root     root           360 Jun 17 18:52 dev
+drwxr-xr-x   16 root     root          4096 Jun 17 17:52 etc
+-rwxr-xr-x    1 root     root            43 Jun 17 17:52 hello.py
+drwxr-xr-x    2 root     root          4096 May 25 15:18 home
+drwxr-xr-x    6 root     root          4096 Jun 17 17:52 lib
+drwxr-xr-x    5 root     root          4096 May 25 15:18 media
+drwxr-xr-x    2 root     root          4096 May 25 15:18 mnt
+dr-xr-xr-x  289 root     root             0 Jun 17 18:52 proc
+drwx------    2 root     root          4096 Jun 17 17:52 root
+drwxr-xr-x    2 root     root          4096 May 25 15:18 run
+drwxr-xr-x    2 root     root          4096 May 25 15:18 sbin
+drwxr-xr-x    2 root     root          4096 May 25 15:18 srv
+dr-xr-xr-x   13 root     root             0 Jun 17 18:52 sys
+drwxrwxrwt    2 root     root          4096 May 25 15:18 tmp
+drwxr-xr-x   12 root     root          4096 Jun 17 17:53 usr
+drwxr-xr-x   13 root     root          4096 Jun 17 17:52 var
+/ # top
+Mem: 4979744K used, 3105372K free, 482628K shrd, 852336K buff, 1532500K cached
+CPU:   0% usr   0% sys   0% nic  87% idle  12% io   0% irq   0% sirq
+Load average: 0.22 0.50 0.68 2/853 53
+  PID  PPID USER     STAT   VSZ %VSZ CPU %CPU COMMAND
+    1     0 root     S     1544   0%   2   0% /bin/sh
+   31     0 root     S     1544   0%   0   0% sh
+   44     0 root     S     1544   0%   2   0% sh
+   53    44 root     R     1536   0%   7   0% top
+   25     0 root     S     1532   0%   5   0% sh
+```
+
+Notice, that only few processes are running inside our container (Alpine Linux). It's because container's processes are isolated from the system processes.
+
+## Docker Image - Part II - Dockerfile
+
+Going back to our `fsa-analyzer`. Suddenly, we discovered that our program is the _"real deal"_ scientists love it, a monk opened a champaign and, a vegan ate his first steak. ([Leeroy Jenkins!!!!](https://www.youtube.com/watch?v=hooKVstzbz0)).
+
+We decided to create our own image that will contain our `fsa-analyzer` program. To make our program running we need 3 things. Source code (checked), operating system (checked -Alpine Linux), Python (not checked).
+
+To build an image you have to create a `Dockerfile` (blueprint). This file will contain set of instructions executed in order from beginning of the file to the end.
+
+Crate `Dockerfile`
+
+```
 user@machine:~/containerized-workshop$ touch Dockerfile
 ```
 
@@ -174,7 +249,6 @@ RUN apk update
 RUN apk upgrade
 
 # Install OS wide packages
-RUN apk add bash
 RUN apk add python
 RUN apk add py-pip
 
@@ -186,7 +260,7 @@ RUN ln -s /app/main.py /usr/local/bin/fsa-analyzer
 RUN chmod +x /usr/local/bin/fsa-analyzer
 ```
 
-To build and image execute this command. **Replace *ldynia* with your dockerhub username!!!**
+To build and image from `Dockerfile` execute this command. **Replace _ldynia_ with your dockerhub username!!!**
 
 ```
 # Build docker image with Dockerfile
@@ -198,10 +272,10 @@ Successfully tagged ldynia/conteneraized-workshop:1.0
 user@machine:~/containerized-workshop$ docker images
 REPOSITORY                      TAG                 IMAGE ID            CREATED             SIZE
 alpine                          3.6                 a41a7446062d        2 weeks ago         3.97MB
-ldynia/conteneraized-workshop   1.0                 d80e90d300bc        6 minutes ago       60.6MB
+ldynia/conteneraized-workshop   1.0                 d80e90d300bc        6 minutes ago       59.7MB
 ```
 
-Let's run our newly created image and see if the program works. At the same time when program is running open a new terminal and execute `docekr ps` command. Execute dockere `docker ps` once more after the program is ended.
+Let's crate a container from our newly created image and see if our program works. At the same time when program is running open a new terminal and execute `docker ps` command. Execute docker `docker ps` once more after the program is ended.
 
 ```
 # Run our program
@@ -221,14 +295,18 @@ user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:
 user@machine:~/containerized-workshop$ docker ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS              PORTS               NAMES
 db8b56d90a48        ldynia/conteneraized-workshop:1.0   "fsa-analyzer /app..."   2 seconds ago       Up 1 second                             sharp_brown
+878469647aa4        alpine:3.6                          "/bin/sh"                2 hours ago         Up 24 seconds                               angry_swanson
 
 # After program prodiced output run `docker ps` again
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS              PORTS               NAMES
+878469647aa4        alpine:3.6                          "/bin/sh"                2 hours ago         Up 24 seconds                               angry_swanson
 ```
-As you can see our *sharp_brown* container was visable for 5 seconds and disappeared right after our program ended. There is a way how to keep container up (running) and I will show you how to do it in **Program - Part II**
+
+As you can see our _sharp_brown_ container was visible for 5 seconds and disappeared right after our program ended. There is a way how to keep container up (running) and I will show you how to do it in **Program - Part II**
 
 ## Docker Hub
-Since we agree that our program is a "break throught" in scientific world we will share it. To share your image with the whole world, you have to push it to [dockerhub](https://hub.docker.com) (you need to have an account there).
+
+Our program is a "break through" in scientific world and we decided to share it. To share your image with the whole world, you have to push it to [dockerhub](https://hub.docker.com) (you need to have an account there).
 
 ```
 # Login into your account
@@ -261,13 +339,14 @@ user@machine:~/containerized-workshop$ docker pull ldynia/conteneraized-workshop
 ```
 
 ## Program - Part II
-Time passes image is a great success you got 2M+ downloads per day and we decided to improve our's program.
 
-Let's introduce bellow changes to your `main.py` file.
+Time passes, our image is a great success you got 2M+ downloads per day and we decided to improve `fsa-analyzer`.
+
+Let's introduce bellow changes to `main.py` file.
 
 ```
 ## ~/containerized-workshop/app/main.py
-time.sleep(5)
+#time.sleep(5)
 
 statistics = {
     'codons_count': stats.count_codons(),
@@ -275,7 +354,7 @@ statistics = {
 }
 ```
 
-We will as well create an executable bash script that will enforce container to stay up `~/containerized-workshop/app/scripts/startup.sh`.
+As well we will create an executable bash script that will enforce container to stay up and running. `~/containerized-workshop/app/scripts/startup.sh`.
 
 ```
 #!/bin/bash
@@ -285,15 +364,17 @@ echo "Starting infinity loop!"
 while sleep 3600; do :; done
 ```
 
-As well we have to add command at the end of `Dockerfile`. This command will execute startup script every time an image is run.
+Additionally, have to add a command at the end of the `Dockerfile`. This command will execute startup script every time an image is run.
+
 ```
 ## ~/containerized-workshop/Dockerfile
 
 # Startup script
-CMD ["bash", "/app/scripts/startup.sh"]
+CMD ["sh", "/app/scripts/startup.sh"]
 ```
 
 Let's build new image.
+
 ```
 # Build new image
 user@machine:~/containerized-workshop$ docker build -t ldynia/conteneraized-workshop:2.0 .
@@ -302,6 +383,7 @@ Successfully tagged ldynia/conteneraized-workshop:2.0
 ```
 
 Let's test our new program.
+
 ```
 # Run program
 user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:2.0 fsa-analyzer /app/data/dna.fsa | python -m json.tool
@@ -320,19 +402,19 @@ user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:
 }
 ```
 
-Since our program works as expected we are ready to share it with the whole world again -so everyone will be able to download new version.
+Since our updated program works as expected, we will share it with the whole world again.
 
 ```
 # Tag the image and push it to dockerhub
 user@machine:~/containerized-workshop$ docker push ldynia/conteneraized-workshop:2.0
 ```
 
-Do you remember what I said about keeping a container up (running)? To keep container up we created  `startup.sh` script that will be executed ecery time when an image is run. Let's see what I mean.
+Do you remember what I said about keeping a container up (running)? To keep container up we created `startup.sh` script that will be executed every time when an image is run. Let's see what I mean by that.
 
-
-Let's open two terminals. In one termianl you will run image and in other you will display running images (containers).
+Let's open two terminals. In one terminal you will create a container with run image command. In other container you will display running containers.
 
 **conteneraized-workshop:1.0**
+
 ```
 # Run image detach -in first terminal
 user@machine:~/containerized-workshop$ docker run --name container1.0 -d ldynia/conteneraized-workshop:1.0
@@ -344,6 +426,7 @@ a28dd7cecf80        ldynia/conteneraized-workshop:1.0   "/bin/sh"           Less
 ```
 
 **conteneraized-workshop:2.0**
+
 ```
 # Run image detach -in first terminal
 user@machine:~/containerized-workshop$ docker run -d --name container2.0 ldynia/conteneraized-workshop:2.0
@@ -354,28 +437,26 @@ CONTAINER ID        IMAGE                               COMMAND                 
 f3ddc0056c60        ldynia/conteneraized-workshop:2.0   "bash /app/scripts..."   3 seconds ago       Up 2 seconds                            container2.0
 ```
 
-Now you can see that `container2.0` (conteneraized-workshop:2.0) is up and running where, container `container1.0` (conteneraized-workshop:1.0) was exited straight after execution.
+Now you can see that `container2.0` is up and running where, container `container1.0` was exited straight after execution.
 
 ## Docker Container - Part II
 
-There are some advantages of keeping containers up and running. One of it's that containers persist data -*removing container == deleting data within a container*. Another is, that you can interact with container as if you were interacting with an image.
+There are some advantages of keeping containers up and running. One of it's that containers persist data -*removing container == deleting data*. Another is, that you can interact with container as if you were interacting with an image.
 
 Remember taht a container is running instance of the image. As my collage said in Object Oriented way *"if an image is a class then a container is an object"*
 
 Interacting with a container is just like interacting with an image. Compare bellow commadns.
 
 ```
-# Run fsa-analyzer against the image
-user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:1.0 fsa-analyzer /app/data/dna.fsa
-
-# Run fsa-analyzer against the container
+# Run fsa-analyzer against running container
 user@machine:~/containerized-workshop$ docker exec container2.0 fsa-analyzer /app/data/dna.fsa
 ```
 
 ## Docker Volumes
-Even thought our program kicks asses and nerds go crazy about it -since it was mentioned in the [science](http://www.sciencemag.org/). There is a serious draw back. Namely, it can analyze only one file (the file located in the container). This is where volumes come with help. **Volume** is a **bridge (mount) that connects yours machine files system (host) with the container**.
 
-Enough, talking let's create our first volume. First, we have to create new data directory (`data-x`) and fsa file (`rsa.fsa`).
+Even thought our program kicks asses and *"nerds"* go crazy about it -since it was mentioned in the [science](http://www.sciencemag.org/). There is a serious draw back. Namely, it can analyze only one file (the file that we copied when we builded our image). This is where volumes come with help. **Volume** is a **bridge that connects yours machine files system with the container**.
+
+Enough talking let's create a volume. To demonstrate that volumes works we will create new directory (`data-x`) and fsa file (`rsa.fsa`).
 
 ```
 user@machine:~/containerized-workshop$ cd app/
@@ -389,7 +470,7 @@ CONTAINER ID        IMAGE                               COMMAND                 
 3da8ba3b7fb4        ldynia/conteneraized-workshop:2.0   "bash /app/scripts..."   About a minute ago   Up About a minute                       playground
 
 
-user@machine:~/containerized-workshop$ docker exec -it playground fsa-analyzer /app/data-x/rna.fsa | python -m json.tool
+user@machine:~/containerized-workshop$ docker exec playground fsa-analyzer /data-x/rna.fsa | python -m json.tool
 {
     "codons": {
         "AAA": 8,
@@ -403,19 +484,16 @@ user@machine:~/containerized-workshop$ docker exec -it playground fsa-analyzer /
         "T": 303
     }
 }
-
-user@machine:~/containerized-workshop$ docker stop playground
-user@machine:~/containerized-workshop$ docker container prune
 ```
-
 
 ## Docker compose
+
 I have to admit that writing in a terminal long executable commands with full of flags is the last thing that I want to do! If you share my pain then there is the solution. What if I told you that you could do all this terminal mambo-jumob with a one file and one command excited?, Here is where `docker-compose` comes to play.
 
-Let's create a docker-compose file `composer-app.yml` and copy-paste bellow content.
+Let's create a docker-compose file `docker-compose.yml` and copy-paste bellow content.
 
 ```
-# ~/containerized-workshop/compose-app.yml
+# ~/containerized-workshop/docker-compose.yml
 version: '3'
 
 services:
@@ -426,28 +504,22 @@ services:
     restart: always
     container_name: demo
     volumes:
-      - ./app:/app
+      - ./app/data-x:/data-x
     environment:
       MAGIC: abbracadabbra
-    command: bash scripts/startup.sh
+    command: sh scripts/startup.sh
 ```
 
 Once our docker-compose file is create let's run it.
 
 ```
-# Run docker-compose. You can -d at the end to run container in detach mode
-user@machine:~/containerized-workshop$ docker-compose -f composer-app.yml up
+# Run docker-compose in detach mode
+user@machine:~/containerized-workshop$ docker-compose up -d
 Creating demo ...
 Creating demo ... done
-Attaching to demo
-demo           | Starting infinity loop!
-```
 
-Open new terminal and check that it works.
-
-```
-user@machine:~/containerized-workshop$ docker ps
-user@machine:~/containerized-workshop$ docker exec -it demo fsa-analyzer /app/data-x/rna.fsa | python -m json.tool
+# Execute fsa-analyzer
+user@machine:~/containerized-workshop$ docker exec demo fsa-analyzer /data-x/rna.fsa | python -m json.tool
 {
     "nucleotides_count": {
         "A": 333,
@@ -456,14 +528,17 @@ user@machine:~/containerized-workshop$ docker exec -it demo fsa-analyzer /app/da
         "T": 303
     }
 }
+
+# Stop container with docker-compose
+user@machine:~/containerized-workshop$ docker-compose stop
+Stopping demo ... done
 ```
 
-
 # Singularity
-Even thought Docekr rocks! There are some aspects of it (due to its implementation) that will not make docker the best solution for your needs.
+
+Even thought docker rocks! There are some aspects of it (due to its implementation) that will not make docker the best solution for your needs.
 
 [Singularity](http://singularity.lbl.gov/), is another containerized solution that addresses similar problems with different approach. The best part of it's that it utilizes docker images :) You will be astonished how simple it's to containerize your application (software) into it.
-
 
 In this section we will do exactly the same with singularity what we did with docker.
 
@@ -487,7 +562,7 @@ user@machine:~/containerized-workshop$ ls -lh alpine.img
 
 # Check image size again 29MB
 user@machine:~/containerized-workshop$ du -h alpine.img
-29M	alpine.img
+29M    alpine.img
 
 # Import docker's alpine image into our singularity image
 user@machine:~/containerized-workshop$ singularity import alpine.img docker://alpine:3.6
@@ -500,7 +575,7 @@ Importing: /home/ludd/.singularity/metadata/sha256:6b8bbe197a20c88d065c265cf6f6f
 
 # Check image size again
 user@machine:~/containerized-workshop$ du -h alpine.img
-33	alpine.img
+33    alpine.img
 ```
 
 Once image is created we can interact with it.
@@ -536,6 +611,7 @@ ERROR: Failed to open apk database: Permission denied
 ```
 
 ## Writeing into an image
+
 As you can see singularity is very strict to who can interact with an image and what can be written there.
 
 To write into an image just add `--writable` flag.
@@ -556,9 +632,11 @@ Singularity alpine.img:~> exit
 ```
 
 ## Singularity file
+
 We know that it's a bit of a hassle to do everything from terminal. Fortunately, we can automatize our work and create singularity bootstrap file which is equivalent to a Dockerfile.
 
 Create Singularity file and copy-paste bellow content into it.
+
 ```
 # Singularityfile bootstrap file
 # ~/containerized-workshop/Singularityfile
@@ -594,6 +672,7 @@ echo "The post section is where you can install, and configure your container."
 ```
 
 Once file is created then we will build image from it.
+
 ```
 # Recreate alpine image
 user@machine:~/containerized-workshop$ rm alpine.img

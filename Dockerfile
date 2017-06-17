@@ -11,7 +11,6 @@ RUN apk update
 RUN apk upgrade
 
 # Install OS wide packages
-RUN apk add bash
 RUN apk add python
 RUN apk add py-pip
 
@@ -23,4 +22,4 @@ RUN ln -s /app/main.py /usr/local/bin/fsa-analyzer
 RUN chmod +x /usr/local/bin/fsa-analyzer
 
 # Startup script
-CMD ["bash", "/app/scripts/startup.sh"]
+#CMD ["sh", "/app/scripts/startup.sh"]

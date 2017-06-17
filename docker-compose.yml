@@ -8,7 +8,7 @@ services:
     restart: always
     container_name: demo
     volumes:
-      - ./app:/app
+      - ./app/data-x/:/data-x
     environment:
       MAGIC: abbracadabbra
-    command: bash scripts/startup.sh
+    command: sh scripts/startup.sh
