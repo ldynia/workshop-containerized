@@ -445,7 +445,7 @@ There are some advantages of keeping containers up and running. One of it's that
 
 Remember taht a container is running instance of the image. As my collage said in Object Oriented way *"if an image is a class then a container is an object"*
 
-Interacting with a container is just like interacting with an image. Compare bellow commadns.
+We used `docekr run` to interact with an image. To interact with a container we use `docker exec`
 
 ```
 # Run fsa-analyzer against running container
