@@ -610,7 +610,7 @@ ERROR: Unable to lock database: Permission denied
 ERROR: Failed to open apk database: Permission denied
 ```
 
-## Writeing into an image
+## Writing into an image
 
 As you can see singularity is very strict to who can interact with an image and what can be written there.
 
