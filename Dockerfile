@@ -6,13 +6,13 @@ MAINTAINER Lukasz Dynowski ludd@cbs.dtu.dk
 COPY ./app /app
 WORKDIR /app
 
-# Update packages
-RUN apk update
-RUN apk upgrade
+# OS Update & Upgrade
+RUN apk update && apk upgrade
 
-# Install OS wide packages
-RUN apk add python
-RUN apk add py-pip
+# Install packages
+RUN apk add \
+  python \
+  py-pip
 
 # Install application wide packages
 RUN pip install -r requirements.txt

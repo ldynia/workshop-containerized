@@ -245,13 +245,13 @@ MAINTAINER Lukasz Dynowski ludd@cbs.dtu.dk
 COPY ./app /app
 WORKDIR /app
 
-# Update packages
-RUN apk update
-RUN apk upgrade
+# OS Update & Upgrade
+RUN apk update && apk upgrade
 
-# Install OS wide packages
-RUN apk add python
-RUN apk add py-pip
+# Install packages
+RUN apk add \
+  python \
+  py-pip
 
 # Install application wide packages
 RUN pip install -r requirements.txt
@@ -657,10 +657,14 @@ AUTHOR ludd@cbs.dtu.dk
 
 %post
 
+# OS Update & Upgrade
+apk update && apk upgrade
+
 # Install packages
-apk update
-apk add python
-apk add py-pip
+apk add \
+  git \
+  python \
+  py-pip
 
 # Clone git repo and remove git repo
 git clone https://github.com/ldynia/containerized-workshop

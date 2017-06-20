@@ -10,11 +10,14 @@ AUTHOR ludd@cbs.dtu.dk
 
 %post
 
+# OS Update & Upgrade
+apk update && apk upgrade
+
 # Install packages
-apk update
-apk add git
-apk add python
-apk add py-pip
+apk add \
+  git \
+  python \
+  py-pip
 
 # Clone git repo and remove git repo
 git clone https://github.com/ldynia/containerized-workshop
