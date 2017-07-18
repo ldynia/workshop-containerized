@@ -236,7 +236,7 @@ user@machine:~/containerized-workshop$ touch Dockerfile
 
 Enter bellow content into `Dockerfile`.
 
-```Bash
+```
 # ~/containerized-workshop/Dockerfile
 FROM alpine:3.6
 
