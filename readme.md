@@ -1,9 +1,20 @@
 # Containerized Workshop
 Welcome to the workshop about containerized technologies. In this workshop you will learn about visualization tools such [docker](https://docs.docker.com/) and [singularity](http://singularity.lbl.gov/).
 
-Containerized technologies allows scientist (developers) to packages, interact and distribute their's software. Consequences of this practice are that results of a scientific paper can be reproducible.
+Aim of this workshop is to teach you the best practices on how to use containerized technologies. After finishing this tutorial you will know how to package, distribute and share your software using docker and singularity.
 
-Aim of this project is to teach the audience the best practices on how to use containerized technologies. After finishing this tutorial you will know how to package, distribute and share yours software (tools) using [docker](https://docs.docker.com/) and [singularity](http://singularity.lbl.gov/).
+# What is containerized technology?
+I think that we all know what word virtual means. We can agree that to be virtual is to replicate a physical reality into a digital representation that you can interact with e.g. Turing's chatbot, or virtual reality applications with Oculus Rift.
+
+Lets talk about bing virtual/virtuality in the context of containerized technologies. In the simplest way a containerized technologies are a software tools, that allows us to abstract physical resource of operating system/kernel into virtual one. Advantage of this abstraction allows us to package, interact and distribute not only software that we wrote, but as well all environment that the software depends on.
+
+Consequences of this practice is something that software industry has been struggling a lot in the past decades. Namely, reproducibility and testability. If I was about to close concept of containerized technology in one world then it would be a "virtual-machine".
+
+Containerized technologies has been there for a while. The best known technology developed so far is [VirtualBox](https://www.virtualbox.org/). However, it has its drawbacks such, size, reproducibility, configuration and overhead. Advantage of VirtualBox is isolation of processes and resources.
+
+TODO:
+The true Renaissance of the conteneraized-workshop
+https://www.quora.com/What-is-the-difference-between-containerization-Docker-and-virtualization-VMWare-VirtualBox-Xen
 
 # Docker
 
