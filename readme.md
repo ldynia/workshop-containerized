@@ -1,15 +1,13 @@
 # Containerized Workshop
+Welcome to the workshop about containerized technologies. In this workshop you will learn about visualization tools such [docker](https://docs.docker.com/) and [singularity](http://singularity.lbl.gov/).
 
-This repository is a tutorial created to demonstrates usage of containerized technologies. The technologies that I am referring to are [docker](https://docs.docker.com/) and [singularity](http://singularity.lbl.gov/).
-
-Audience of this project are scientists, phds, developers who build software (tools). Containerized technologies allows scientist (developers) to packages, interact and distribute their's software. Consequences of this practice are that results of a scientific paper can be reproducible.
+Containerized technologies allows scientist (developers) to packages, interact and distribute their's software. Consequences of this practice are that results of a scientific paper can be reproducible.
 
 Aim of this project is to teach the audience the best practices on how to use containerized technologies. After finishing this tutorial you will know how to package, distribute and share yours software (tools) using [docker](https://docs.docker.com/) and [singularity](http://singularity.lbl.gov/).
 
 # Docker
 
 ## Requirements
-
 Before you start tutorial you have to fulfilled below requirements.
 
 - [git](https://git-scm.com/downloads) - installed
@@ -22,15 +20,13 @@ Before you start tutorial you have to fulfilled below requirements.
 - sudo/root access yours machine
 
 ## Assumption
-
 Workshop base on the assumption that all points in requirements are fulfilled.
 
 ## Git
-
 Let's start with cloning this repository to yours computer. Because repository is a complete solution we will have to delete some files -don't worry we will recreate them as we proceed with the tutorial.
 
 Please execute bellow instructions.
-```Bash
+```bash
 # Go to home directory
 user@machine:~$ cd ~
 
@@ -45,12 +41,11 @@ user@machine:~/containerized-workshop$ rm -rf docker-compose.yml Dockerfile Sing
 ```
 
 ## Program - Part I
-
 Let me introduce you to our program -we will call it `fsa-analyzer`. The program is very simple and works like this. The program takes as an input a `*.fsa` file, and returns count of nucleotides. **Note:** The program returns output after 5 seconds -this is an intended behavior.
 
 To see how our program works please execute bellow instructions.
 
-```Bash
+```bash
 # Go to app directory
 user@machine:~/containerized-workshop$ cd app
 
@@ -74,12 +69,11 @@ user@machine:~/containerized-workshop/app$ cd ..
 ```
 
 ## Docker Image - Part I
-
 Let's start with the definition of an **IMAGE** file. An image is an **executable file (tar file or sparse file) that contains a bunch of tools (software), environment variables, configuration files, source code installed on top of a Linux distribution**. I think of an image as it was a blueprint of a house -with one blueprint you can build infinite number of houses.
 
 Let's download first docker image. The image that we will download will be the image with Alpine Linux distribution.
 
-```Bash
+```bash
 # Pull alpine linux image from dockerhub
 user@machine:~/containerized-workshop$ docker pull alpine:3.6
 
@@ -90,14 +84,13 @@ alpine              3.6                 a41a7446062d        2 weeks ago         
 ```
 
 ## Docker Container - Part I
-
 An image that runs a process is called **CONTAINER**. Other words, a container is a **runtime instance of an image**. I think of a container as it was a real house -a place where you can get it and start furnishing it.
 
 A container is an awesome thing. You can literally pack into it your source code, config files, data files, other software, etc... and it will persist those data. On the other hand an image once is created (build) it will not persist data. **Remember an image is the blueprint a container is the real thing!**
 
 Saying that let's get going, and let's create our first container.
 
-```Bash
+```bash
 # Let's run downloaded image, and let's install python there.
 # After installation we will create hello.py script to verify that python works.
 user@machine:~/containerized-workshop$ docker run -it alpine:3.6
@@ -115,7 +108,7 @@ docker rocks!
 
 Remember that ran image is called **container**. At any time you can check how many containers docker is running with `docker ps` command. You will see that a container has an id, a name (*angry_swanson*) and image associated with it, as well as other information.
 
-```Bash
+```bash
 # Open new terminal and list running containers.
 user@machine:~$ docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
@@ -124,14 +117,14 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 To exit our container press `Ctrl+D`
 
-```Bash
+```bash
 docker rocks! (Ctrl + D)
 user@machine:~/containerized-workshop$
 ```
 
 With `Ctrl + D` we exited (and stopped) *angry_swanson* container. So let's check if our container is running. To do that we will execute `docker ps` again.
 
-```Bash
+```bash
 # List all running containers
 user@machine:~$ docker ps
 CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
@@ -141,7 +134,7 @@ No surprises there. The question is what happened to the container. Was it delet
 
 Being serious, to see stopped containers execute bellow command.
 
-```Bash
+```bash
 # List all stopped containers
 user@machine:~/containerized-workshop$ docker ps -a
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
@@ -150,7 +143,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 As we can see *angry_swanson* is still there and it was not deleted. The question is can we bring back to live and run our `yo!` program? Yes we can, to start a container execute bellow command.
 
-```Bash
+```bash
 # Start container
 user@machine:~/containerized-workshop$ docker start angry_swanson
 
@@ -162,7 +155,7 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 
 Container are awesome because you can interact with them. To interact with a container you use `exec` command. Let's exec our `yo!` program again.
 
-```Bash
+```bash
 # Run yo! program against docker container
 user@machine:~/containerized-workshop$ docker exec angry_swanson yo!
 docker rocks!
@@ -170,7 +163,7 @@ docker rocks!
 
 Remember that exec works only with running container. Let's see what will happened when we will stop a container.
 
-```Bash
+```bash
 # Stop container
 user@machine:~/containerized-workshop$ docker stop angry_swanson
 
@@ -181,7 +174,7 @@ Error response from daemon: Container 878469647aa4611b36de1f97a8e9d1273fbeb228ac
 
 The best part about containers is that can hook into it. Let me demonstrate.
 
-```Bash
+```bash
 # Start angry_swanson again
 user@machine:~/containerized-workshop$ docker start angry_swanson
 
@@ -221,7 +214,6 @@ Load average: 0.22 0.50 0.68 2/853 53
 Notice that only few processes are running inside our container (Alpine Linux). It's because container's processes are isolated from the system processes.
 
 ## Docker Image - Part II - Dockerfile
-
 Going back to our `fsa-analyzer`. Suddenly, we discovered that our program is the *"real deal"* scientists love it, a monk opened a champaign and, a vegan ate his first steak. ([Leeroy Jenkins!!!!](https://www.youtube.com/watch?v=hooKVstzbz0)).
 
 We decided to create our own image and we will pack there our program. To make our program running we need 3 things. Source code (checked), operating system (checked -Alpine Linux), Python (not checked).
@@ -230,7 +222,7 @@ To build an image you have to create a `Dockerfile` (the blueprint file). This f
 
 Crate a `Dockerfile`
 
-```Bash
+```bash
 user@machine:~/containerized-workshop$ touch Dockerfile
 ```
 
@@ -264,7 +256,7 @@ RUN chmod +x /usr/local/bin/fsa-analyzer
 
 To build and image from a `Dockerfile` execute bellow command. **Replace _ldynia_ with your dockerhub username !!!**
 
-```Bash
+```bash
 # Build docker image with Dockerfile
 user@machine:~/containerized-workshop$ docker build -t ldynia/conteneraized-workshop:1.0 .
 Successfully built d80e90d300bc
@@ -279,7 +271,7 @@ ldynia/conteneraized-workshop   1.0                 d80e90d300bc        6 minute
 
 Let's crate a container from our newly created image and see if our program works. At the same time when program is running open a new terminal and execute `docker ps` command. Execute docker `docker ps` once more after the program is ended.
 
-```Bash
+```bash
 # Run our program
 user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:1.0 fsa-analyzer /app/data/dna.fsa | python -m json.tool
 {
@@ -292,7 +284,7 @@ user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:
 }
 ```
 
-```Bash
+```bash
 # While our program is running execute `docker ps`
 user@machine:~/containerized-workshop$ docker ps
 CONTAINER ID        IMAGE                               COMMAND                  CREATED             STATUS              PORTS               NAMES
@@ -307,10 +299,9 @@ CONTAINER ID        IMAGE                               COMMAND                 
 As you can see our *sharp_brown* container was visible for 5 seconds and disappeared right after our program ended. There is a way to keep container up (running) and I will show you how to do it in **Program - Part II**
 
 ## Docker Hub
-
 Our program is a "break through" in scientific world and we decided to share it. To share your image with the whole world, you have to push it to [dockerhub](https://hub.docker.com) (you need to have an account there).
 
-```Bash
+```bash
 # Login into your account
 user@machine:~/containerized-workshop$ docker login
 Username (ldynia):
@@ -332,7 +323,7 @@ user@machine:~/containerized-workshop$ docker push ldynia/conteneraized-workshop
 
 Now everyone in the world can download your image and run it as a container.
 
-```Bash
+```bash
 # Remove image from your machine
 user@machine:~/containerized-workshop$ docker rmi -f ldynia/conteneraized-workshop:1.0
 
@@ -344,12 +335,11 @@ user@machine:~/containerized-workshop$ docker container prune
 ```
 
 ## Program - Part II
-
 Time passes, our image is a great success you got 2M+ downloads per day and we decided to improve `fsa-analyzer`.
 
 Let's introduce bellow changes to `main.py` file.
 
-```Bash
+```bash
 ## ~/containerized-workshop/app/main.py
 #time.sleep(5)
 
@@ -361,7 +351,7 @@ statistics = {
 
 As well we will create an executable bash script that will enforce container to stay up and running. Create this file `~/containerized-workshop/app/scripts/startup.sh`.
 
-```Bash
+```bash
 #!/bin/bash
 
 # sleep infinity
@@ -371,7 +361,7 @@ while sleep 3600; do :; done
 
 Additionally, we have to add a command at the end of our `Dockerfile`. This command will execute startup script every time an image is run.
 
-```Bash
+```bash
 # Startup script
 CMD ["sh", "/app/scripts/startup.sh"]
 ```
@@ -387,7 +377,7 @@ Successfully tagged ldynia/conteneraized-workshop:2.0
 
 Let's test our new program.
 
-```Bash
+```bash
 # Run program
 user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:2.0 fsa-analyzer /app/data/dna.fsa | python -m json.tool
 {
@@ -407,7 +397,7 @@ user@machine:~/containerized-workshop$ docker run ldynia/conteneraized-workshop:
 
 Since our updated program works as expected, we will share it with the whole world again.
 
-```Bash
+```bash
 # Tag the image and push it to dockerhub
 user@machine:~/containerized-workshop$ docker push ldynia/conteneraized-workshop:2.0
 ```
@@ -418,7 +408,7 @@ Let's open two terminals. In one terminal we will create a container with `docke
 
 **conteneraized-workshop:1.0**
 
-```Bash
+```bash
 # Run image detach -in first terminal
 user@machine:~/containerized-workshop$ docker run -d --name container1.0 ldynia/conteneraized-workshop:1.0
 
@@ -430,7 +420,7 @@ a28dd7cecf80        ldynia/conteneraized-workshop:1.0   "/bin/sh"           Less
 
 **conteneraized-workshop:2.0**
 
-```Bash
+```bash
 # Run image detach -in first terminal
 user@machine:~/containerized-workshop$ docker run -d --name container2.0 ldynia/conteneraized-workshop:2.0
 
@@ -443,25 +433,23 @@ f3ddc0056c60        ldynia/conteneraized-workshop:2.0   "bash /app/scripts..."  
 You can see that `container2.0` is up and running where, container `container1.0` was exited straight after execution.
 
 ## Docker Container - Part II
-
 There are some advantages of keeping containers up and running. One of it's that containers persist data -*removing container equals to deleting data*. Another is, that you can interact with container as if you were interacting with an image.
 
 Remember that a container is running instance of the image. As my collage said in Object Oriented way *"if an image is a class then a container is an object"*
 
 We used `docekr run` to interact with an image. To interact with a container we use `docker exec`
 
-```Bash
+```bash
 # Run fsa-analyzer against running container
 user@machine:~/containerized-workshop$ docker exec container2.0 fsa-analyzer /app/data/dna.fsa
 ```
 
 ## Docker Volumes
-
 Even thought our program kicks asses and *"nerds"* go crazy about it -since it was mentioned in the [science](http://www.sciencemag.org/). There is a serious draw back. Namely, it can analyze only one file (the file that we copied when we builded our image). This is where volumes come with help. **Volume** is a **bridge that connects yours machine files system with the container**.
 
 Enough talking let's create a volume. To demonstrate that volumes works we will create new directory (`data-x`) and fsa file (`rsa.fsa`).
 
-```Bash
+```bash
 # Create dummy data
 user@machine:~/containerized-workshop$ cd app/
 user@machine:~/containerized-workshop/app$ cp -r data/ data-x/
@@ -493,7 +481,6 @@ user@machine:~/containerized-workshop$ docker exec playground fsa-analyzer /data
 ```
 
 ## Docker compose
-
 I have to admit that, writing long executable commands full of flags in terminal is the last thing that I want to do! If you share my pain then there is a solution for it. What if I told you that you could do all this terminal *mambo-jumob* with a one file and one command excited?, Here is where `docker-compose` comes to play.
 
 Let's create a docker-compose file `docker-compose.yml` and copy-paste bellow content.
@@ -518,7 +505,7 @@ services:
 
 Once our docker-compose file is create let's run it.
 
-```Bash
+```bash
 # Run docker-compose in detach mode
 user@machine:~/containerized-workshop$ docker-compose up -d
 Creating demo ...
@@ -541,7 +528,6 @@ Stopping demo ... done
 ```
 
 # Singularity
-
 Even thought docker rocks! There are some aspects of it (due to its implementation) that will not make docker the best solution for yours needs.
 
 [Singularity](http://singularity.lbl.gov/), is another containerized solution that addresses similar problems as docker but, with different approach. The best part of it's that it utilizes docker images :) You will be astonished how simple it's to containerize your application (software).
@@ -549,10 +535,9 @@ Even thought docker rocks! There are some aspects of it (due to its implementati
 In this section we will package our `fsa-analyzer` into a singularity image.
 
 ## Image
-
 Let's create our first singularity image.
 
-```Bash
+```bash
 # Create an image
 user@machine:~/containerized-workshop$ singularity create alpine.img
 Initializing Singularity image subsystem
@@ -586,7 +571,7 @@ user@machine:~/containerized-workshop$ du -h alpine.img
 
 Once image is created we can interact with it.
 
-```Bash
+```bash
 # Shell into image
 user@machine:~/containerized-workshop$ singularity shell alpine.img
 Singularity: Invoking an interactive shell within container...
@@ -618,12 +603,11 @@ ERROR: busybox-1.26.2-r4.trigger: failed to execute: No space left on device
 ```
 
 ## Writing into an image
-
 As you can see singularity is very strict to who can interact with an image and what can be written there.
 
 To write into an image just add `--writable` flag.
 
-```Bash
+```bash
 # Login as a sudo in writable mode
 user@machine:~/containerized-workshop$ sudo singularity shell --writable alpine.img
 Singularity: Invoking an interactive shell within container...
@@ -638,12 +622,11 @@ Singularity alpine.img:~> exit
 ```
 
 ## Singularity file
-
 We know that it's a bit of a hassle to do everything from terminal. Fortunately, we can automatize our work and create singularity bootstrap file which is equivalent to a Dockerfile.
 
 Create Singularity file (`~/containerized-workshop/Singularityfile`) and copy-paste bellow content into it.
 
-```
+```bash
 # Singularityfile bootstrap file
 Bootstrap: docker
 From: alpine:3.6
@@ -680,7 +663,7 @@ echo "The post section is where you can install, and configure your container."
 
 Once file is created then we will build image from it.
 
-```Bash
+```bash
 # Recreate alpine image
 user@machine:~/containerized-workshop$ rm alpine.img
 user@machine:~/containerized-workshop$ singularity create alpine.img
@@ -694,5 +677,4 @@ user@machine:~/containerized-workshop$ singularity exec alpine.img fsa-analyzer 
 ```
 
 ## Distribute an image
-
 Send the image it via email, copy it on usb stick or upload to cloud -you name it!, just deliver it to person that you want to share it with.
