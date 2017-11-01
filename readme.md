@@ -31,7 +31,7 @@ If it's about visualization then we are living in Renaissance age. Containerized
 
 Docker is another virtualization software that allows you to package your software. To understand better what's so special about Docker lets compare it to VirtualMachine.
 
-<a href="https://www.youtube.com/watch?v=Q37xJtuQ24w&t=1m11s">
+<a href="#">
   <p align="center">
     <img src="img/vm_vs_docker.png"/>
   </p>
