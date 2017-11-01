@@ -3,38 +3,47 @@ Welcome to the workshop about containerized technologies. In this workshop you w
 
 Aim of this workshop is to teach you the best practices on how to use containerized technologies. After finishing this tutorial you will know how to package, distribute and share your software using docker and singularity.
 
-# What is containerized technology?
-I think that we all know what word virtual means. We can agree that to be virtual is to replicate a physical reality into a digital representation that you can interact with e.g. Turing's chatbot, or virtual reality applications with Oculus Rift.
-
-Lets talk about bing virtual/virtuality in the context of containerized technologies. In the simplest way a containerized technologies are a software tools, that allows us to abstract physical resource of operating system/kernel into virtual one. Advantage of this abstraction allows us to package, interact and distribute not only software that we wrote, but as well all environment that the software depends on.
-
-Consequences of this practice is something that software industry has been struggling a lot in the past decades. Namely, reproducibility and testability. If I was about to close concept of containerized technology in one world then it would be a "virtual-machine".
-
-Containerized technologies has been there for a while. The best known technology developed so far is [VirtualBox](https://www.virtualbox.org/). However, it has its drawbacks such, size, reproducibility, configuration and overhead. Advantage of VirtualBox is isolation of processes and resources.
-
-TODO:
-The true Renaissance of the conteneraized-workshop
-https://www.quora.com/What-is-the-difference-between-containerization-Docker-and-virtualization-VMWare-VirtualBox-Xen
-
-# Docker
-
 ## Requirements
-Before you start tutorial you have to fulfilled below requirements.
+Before you start workshop you have to fulfilled below requirements.
 
 - [git](https://git-scm.com/downloads) - installed
 - [docker](https://docs.docker.com/) - installed
 - [dockerhub](https://hub.docker.com/) account
-- [docker-compose](https://docs.docker.com/compose/install/#alternative-install-options) account
+- [docker-compose](https://docs.docker.com/compose/install/#alternative-install-options) - installed
 - [pytohn](https://www.python.org/downloads/) -installed
 - [pip](https://pypi.python.org/pypi/pip) -installed
 - [singularity](http://singularity.lbl.gov/) -installed
-- sudo/root access yours machine
+- sudo/root access - your machine
 
 ## Assumption
 Workshop base on the assumption that all points in requirements are fulfilled.
 
-## Git
-Let's start with cloning this repository to yours computer. Because repository is a complete solution we will have to delete some files -don't worry we will recreate them as we proceed with the tutorial.
+# Virtualization
+## What Is a Containerized Technology?
+I think that we all know what word virtual means. We can agree that to be virtual is to replicate a physical reality into a digital representation that you can interact with e.g. Turing's chatbot, or virtual reality applications with Oculus Rift.
+
+Let's talk about virtuality in context of containerized technologies. In the simplest way a containerized technologies are a software tools, that allows us to abstract physical resources like operating system/kernel into virtual one. Advantage of this abstraction allows us to package, interact and distribute not only a software, but as well environment that software depends on.
+
+Consequences of this practice is something that software industry has been struggling a lot in the past decades -in the context of virtualization. Namely, reproducibility, portability, isolation and effective use of hardware. If I was about to close concept of containerized technology in one world then it would be a "virtual-box".
+
+## Game Changer
+If it's about visualization then we are living in Renaissance age. Containerized technologies has been there for a while. The best known technology developed so far was [VirtualBox](https://www.virtualbox.org/). However, its drawbacks such, image size, reproducibility, configuration and overhead, lead to development of new solutions and this is where Docker comes to play.
+
+Docker is another virtualization software that allows you to package your software. To understand better what's so special about Docker lets compare it to VirtualMachine.
+
+<a href="https://www.youtube.com/watch?v=Q37xJtuQ24w&t=1m11s">
+  <p align="center">
+    <img src="img/vm_vs_docker.png"/>
+  </p>
+</a>
+
+As you can see docker uses `docker engine` instead of `hypervision`. This change eliminates need of having **Guest OS**, and allows Docker to use hardware resources more efficient than VirtualMachine -reducing overhead. Just to let you know that it's achieved by [Namespaces](https://en.wikipedia.org/wiki/Linux_namespaces) but I will not go deep into it.
+
+## Context is King
+I would like stress that Docker is not a flawless tool that you should use for all your problems. Everything, depends on context. Base on the nature of the problem that you are dealing with docker might be the least favorable solution that you should work with. Some times it might be VirtualBox, other time Singularity or even another visualization technology that I am not aware of.
+
+# Installation
+Let's start with cloning this repository to your computer. Because this repository is a complete solution we will have to delete some files -don't worry we will recreate them as we proceed with the tutorial.
 
 Please execute bellow instructions.
 ```bash
@@ -52,7 +61,7 @@ user@machine:~/containerized-workshop$ rm -rf docker-compose.yml Dockerfile Sing
 ```
 
 ## Program - Part I
-Let me introduce you to our program -we will call it `fsa-analyzer`. The program is very simple and works like this. The program takes as an input a `*.fsa` file, and returns count of nucleotides. **Note:** The program returns output after 5 seconds -this is an intended behavior.
+Let me introduce you to our program that we'll call `fsa-analyzer`. This simple program works like this. It takes input a `*.fsa` file, and returns count of nucleotides. **Note:** The program returns output after 5 seconds -this is an intended behavior.
 
 To see how our program works please execute bellow instructions.
 
@@ -79,10 +88,13 @@ user@machine:~/containerized-workshop/app$ python main.py data/dna.fsa | python 
 user@machine:~/containerized-workshop/app$ cd ..
 ```
 
-## Docker Image - Part I
-Let's start with the definition of an **IMAGE** file. An image is an **executable file (tar file or sparse file) that contains a bunch of tools (software), environment variables, configuration files, source code installed on top of a Linux distribution**. I think of an image as it was a blueprint of a house -with one blueprint you can build infinite number of houses.
+# Vocabulary
+* **Image**  -is an **executable file(s) (tar file or sparse file) that contains a bunch of tools (software), environment variables, configuration files, source code installed on top/along with operating system**. I think of an image as it was a blueprint of a house -with one blueprint you can build infinite number of houses.
+* **Container** -is an image that runs a process, other words **runtime instance of an image**. I think of a container as if it was a real house -a place where you can get in and start furnishing it.
 
-Let's download first docker image. The image that we will download will be the image with Alpine Linux distribution.
+# Docker
+## Docker Image - Part I
+Enough definitions! Let's download first docker image. An image that we will download will contain Alpine Linux - Linux distribution.
 
 ```bash
 # Pull alpine linux image from dockerhub
@@ -95,9 +107,7 @@ alpine              3.6                 a41a7446062d        2 weeks ago         
 ```
 
 ## Docker Container - Part I
-An image that runs a process is called **CONTAINER**. Other words, a container is a **runtime instance of an image**. I think of a container as it was a real house -a place where you can get it and start furnishing it.
-
-A container is an awesome thing. You can literally pack into it your source code, config files, data files, other software, etc... and it will persist those data. On the other hand an image once is created (build) it will not persist data. **Remember an image is the blueprint a container is the real thing!**
+A container is an awesome thing, it has capabilities to grow. You can literally pack into it your source code, config files, data files, other software, etc... and it will persist this data. On the other hand when an image is created (build) it will persist only data that where used in the process of building the image. **Remember an image is the blueprint a container is the real thing!**
 
 Saying that let's get going, and let's create our first container.
 
@@ -117,7 +127,7 @@ docker rocks!
 ```
 
 
-Remember that ran image is called **container**. At any time you can check how many containers docker is running with `docker ps` command. You will see that a container has an id, a name (*angry_swanson*) and image associated with it, as well as other information.
+Remember that `docker run` command is always executed against an image and output of it creates a **container**. At any time you can check how many containers docker is running with `docker ps` command. You will see that a container has an id, a name (*angry_swanson*) and image associated with it, as well as other information.
 
 ```bash
 # Open new terminal and list running containers.
@@ -152,7 +162,9 @@ CONTAINER ID        IMAGE               COMMAND             CREATED             
 878469647aa4        alpine:3.6          "/bin/sh"           About an hour ago   Exited (0) 40 minutes ago                       angry_swanson
 ```
 
-As we can see *angry_swanson* is still there and it was not deleted. The question is can we bring back to live and run our `yo!` program? Yes we can, to start a container execute bellow command.
+As we can see *angry_swanson* is still there and it was not deleted. The question is can we bring back to live and run our `yo!` program?
+``
+Yes we can, to start a container execute bellow command.
 
 ```bash
 # Start container
@@ -183,7 +195,7 @@ user@machine:~/containerized-workshop$ docker exec angry_swanson yo!
 Error response from daemon: Container 878469647aa4611b36de1f97a8e9d1273fbeb228ac355777e4e1b02e118fa272 is not running
 ```
 
-The best part about containers is that can hook into it. Let me demonstrate.
+The best part about containers is that we can hook into it. Let me demonstrate.
 
 ```bash
 # Start angry_swanson again
@@ -456,7 +468,7 @@ user@machine:~/containerized-workshop$ docker exec container2.0 fsa-analyzer /ap
 ```
 
 ## Docker Volumes
-Even thought our program kicks asses and *"nerds"* go crazy about it -since it was mentioned in the [science](http://www.sciencemag.org/). There is a serious draw back. Namely, it can analyze only one file (the file that we copied when we builded our image). This is where volumes come with help. **Volume** is a **bridge that connects yours machine files system with the container**.
+Even thought our program kicks asses and *"nerds"* go crazy about it -since it was mentioned in the [science](http://www.sciencemag.org/). There is a serious draw back. Namely, it can analyze only one file (the file that we copied when we builded our image). This is where volumes come with help. **Volume** is a **bridge that connects your machine files system with a container**.
 
 Enough talking let's create a volume. To demonstrate that volumes works we will create new directory (`data-x`) and fsa file (`rsa.fsa`).
 
@@ -539,7 +551,7 @@ Stopping demo ... done
 ```
 
 # Singularity
-Even thought docker rocks! There are some aspects of it (due to its implementation) that will not make docker the best solution for yours needs.
+Even thought docker rocks! There are some aspects of it (due to its implementation) that will not make docker the best solution for your needs.
 
 [Singularity](http://singularity.lbl.gov/), is another containerized solution that addresses similar problems as docker but, with different approach. The best part of it's that it utilizes docker images :) You will be astonished how simple it's to containerize your application (software).
 
@@ -614,7 +626,7 @@ ERROR: busybox-1.26.2-r4.trigger: failed to execute: No space left on device
 ```
 
 ## Writing into an image
-As you can see singularity is very strict to who can interact with an image and what can be written there.
+As you can see singularity is very strict about who can interact with an image and what can be written there.
 
 To write into an image just add `--writable` flag.
 
