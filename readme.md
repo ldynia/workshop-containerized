@@ -57,7 +57,7 @@ user@machine:~$ git clone https://github.com/ldynia/containerized-workshop
 user@machine:~$ cd containerized-workshop
 
 # Remove these files
-user@machine:~/containerized-workshop$ rm -rf docker-compose.yml Dockerfile Singularityfile app/scripts/
+user@machine:~/containerized-workshop$ rm -rf .gitignore readme.md docker-compose.yml Dockerfile Singularityfile img/ app/scripts/
 ```
 
 # Vocabulary
