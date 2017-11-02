@@ -60,6 +60,10 @@ user@machine:~$ cd containerized-workshop
 user@machine:~/containerized-workshop$ rm -rf docker-compose.yml Dockerfile Singularityfile app/scripts/
 ```
 
+# Vocabulary
+* **Image**  -is an **executable file(s) (tar file or sparse file) that contains a bunch of tools (software), environment variables, configuration files, source code installed on top/along with operating system**. I think of an image as it was a blueprint of a house -with one blueprint you can build infinite number of houses.
+* **Container** -is an image that runs a process, other words **runtime instance of an image**. I think of a container as if it was a real house -a place where you can get in and start furnishing it.
+
 ## Program - Part I
 Let me introduce you to our program that we'll call `fsa-analyzer`. This simple program works like this. It takes input a `*.fsa` file, and returns count of nucleotides. **Note:** The program returns output after 5 seconds -this is an intended behavior.
 
@@ -87,10 +91,6 @@ user@machine:~/containerized-workshop/app$ python main.py data/dna.fsa | python 
 # Go back to containerized-workshop directory
 user@machine:~/containerized-workshop/app$ cd ..
 ```
-
-# Vocabulary
-* **Image**  -is an **executable file(s) (tar file or sparse file) that contains a bunch of tools (software), environment variables, configuration files, source code installed on top/along with operating system**. I think of an image as it was a blueprint of a house -with one blueprint you can build infinite number of houses.
-* **Container** -is an image that runs a process, other words **runtime instance of an image**. I think of a container as if it was a real house -a place where you can get in and start furnishing it.
 
 # Docker
 ## Docker Image - Part I
