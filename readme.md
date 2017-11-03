@@ -255,7 +255,7 @@ Enter bellow content into `Dockerfile`.
 # ~/containerized-workshop/Dockerfile
 FROM alpine:3.6
 
-MAINTAINER Lukasz Dynowski ludd@cbs.dtu.dk
+MAINTAINER Lukasz Dynowski ludd@bioinformatics.dtu.dk
 
 # Copy app dir form host into image
 COPY ./app /app
@@ -557,95 +557,178 @@ Even thought docker rocks! There are some aspects of it (due to its implementati
 
 In this section we will package our `fsa-analyzer` into a singularity image.
 
-## Image
-Let's create our first singularity image.
+## Container
+Let's create our first singularity container.
 
 ```bash
 # Create an image
-user@machine:~/containerized-workshop$ singularity create alpine.img
-Initializing Singularity image subsystem
-Opening image file: alpine.img
-Creating 768MiB image
-Binding image to loop
-Creating file system within image
-Image is done: alpine.img
-
-# Check image size 769MB
-user@machine:~/containerized-workshop$ ls -lh alpine.img
--rwxr-xr-x 1 ludd ludd 769M Jun 15 15:07 alpine.img
-
-# Check image size again 29MB
-user@machine:~/containerized-workshop$ du -h alpine.img
-29M    alpine.img
-
-# Import docker's alpine image into our singularity image
-user@machine:~/containerized-workshop$ singularity import alpine.img docker://alpine:3.6
+user@machine:~$ sudo singularity build --sandbox alpine/ docker://alpine:3.6
+WARNING: Building sandbox as non-root may result in wrong file permissions
 Docker image path: index.docker.io/library/alpine:3.6
 Cache folder set to /home/ludd/.singularity/docker
-[1/1] |===================================| 100.0%
 Importing: base Singularity environment
-Importing: /home/ludd/.singularity/docker/sha256:d5e46245fe40c2d1ab72bfe328de28549b605b2587ab2fa8715f54e3e2de9c5d.tar.gz
-Importing: /home/ludd/.singularity/metadata/sha256:6b8bbe197a20c88d065c265cf6f6f8b4e3695f104d1f47f01a1298b3566f27fe.tar.gz
+Importing: /home/ludd/.singularity/docker/sha256:b56ae66c29370df48e7377c8f9baa744a3958058a766793f821dadcb144a4647.tar.gz
+Importing: /home/ludd/.singularity/metadata/sha256:dee84a4c12468c1ceaff6effeab567b3cd6e2dcc403a33b357e04abf9f3a1d7f.tar.gz
+WARNING: Building container as an unprivileged user. If you run this container as root
+WARNING: it may be missing some functionality.
+Singularity container built: alpine/
+Cleaning up...
 
-# Check image size again
-user@machine:~/containerized-workshop$ du -h alpine.img
-33    alpine.img
+# content of the directory/container is alpine Linux distribution files.
+user@machine:~$ tree -L 1 alpine/
+alpine/
+├── bin
+├── dev
+├── environment -> .singularity.d/env/90-environment.sh
+├── etc
+├── home
+├── lib
+├── media
+├── mnt
+├── proc
+├── root
+├── run
+├── sbin
+├── singularity -> .singularity.d/runscript
+├── srv
+├── sys
+├── tmp
+├── usr
+└── var
 ```
 
-Once image is created we can interact with it.
+Once container is create lets start interacting with it.
 
 ```bash
 # Shell into image
-user@machine:~/containerized-workshop$ singularity shell alpine.img
+user@machine:~/containerized-workshop$ singularity shell alpine/
 Singularity: Invoking an interactive shell within container...
 
 # Check usernaem
-Singularity alpine.img:~/Coding/workshops/containerize/singularity> whoami
-user
+Singularity> whoami
+username
 
 # Update repository list
-Singularity alpine.img:~/Coding/workshops/containerize/singularity> apk update
-Loaded plugins: fastestmirror, ovl
-ovl: Error while doing RPMdb copy-up:
-[Errno 13] Permission denied: '/var/lib/rpm/Installtid'
-You need to be root to perform this command.
-Singularity alpine.img:~/Coding/workshops/containerize/singularity> exit
+Singularity> apk update
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.6/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.6/community/x86_64/APKINDEX.tar.gz
+WARNING: Ignoring APKINDEX.24d64ab1.tar.gz: BAD signature
+v3.6.2-196-gac6c8a8f2e [http://dl-cdn.alpinelinux.org/alpine/v3.6/main]
+v3.6.2-197-gb2cee117dd [http://dl-cdn.alpinelinux.org/alpine/v3.6/community]
+OK: 8004 distinct packages available
 
+# install vim package
+Singularity> apk add vim
+(5/5) Installing vim (8.0.0595-r0)
+ERROR: Failed to set ownership on etc/vim/vimrc.apk-new: Operation not permitted
+ERROR: Failed to set ownership on usr/bin/view.apk-new: Operation not permitted
+ERROR: Failed to set ownership on usr/bin/xxd.apk-new: Operation not permitted
+ERROR: Failed to set ownership on usr/bin/vimtutor.apk-new: Operation not permitted
+ERROR: Failed to set ownership on usr/bin/rview.apk-new: Operation not permitted
+ERROR: Failed to create usr/bin/vim: No space left on device
+ERROR: vim-8.0.0595-r0: No space left on device
+5 errors; 11 MiB in 13 packages
+```
+
+As we can see above we cannot install packages because we don't have sudo access. Let's change this.
+
+```bash
 # Login as a root
-user@machine:~/containerized-workshop$ sudo singularity shell alpine.img
+user@machine:~/containerized-workshop$ sudo singularity shell alpine/
 Singularity: Invoking an interactive shell within container...
 
-Singularity alpine.img:~> whoami
+Singularity> whoami
 root
 
 # Update repositories
-Singularity alpine.img:~> apk update
-ERROR: Unable to lock database: Permission denied
-ERROR: Failed to open apk database: Permission denied
-ERROR: busybox-1.26.2-r4.trigger: failed to execute: No space left on device
+Singularity> apk update
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.6/main/x86_64/APKINDEX.tar.gz
+fetch http://dl-cdn.alpinelinux.org/alpine/v3.6/community/x86_64/APKINDEX.tar.gz
+v3.6.2-196-gac6c8a8f2e [http://dl-cdn.alpinelinux.org/alpine/v3.6/main]
+v3.6.2-197-gb2cee117dd [http://dl-cdn.alpinelinux.org/alpine/v3.6/community]
+OK: 8438 distinct packages available
+
+# Install packages
+Singularity> apk add vim
+(1/5) Installing lua5.2-libs (5.2.4-r2)
+(2/5) Installing ncurses-terminfo-base (6.0_p20170930-r0)
+(3/5) Installing ncurses-terminfo (6.0_p20170930-r0)
+(4/5) Installing ncurses-libs (6.0_p20170930-r0)
+(5/5) Installing vim (8.0.0595-r0)
+Executing busybox-1.26.2-r7.trigger
+OK: 37 MiB in 16 packages
+Singularity> exit
 ```
 
-## Writing into an image
-As you can see singularity is very strict about who can interact with an image and what can be written there.
+## Executing commands
+Running commands in Singularity is straight forward. Just run command using `exec` keyword agains Singularity container.
 
-To write into an image just add `--writable` flag.
+```bash
+user@machine:~/containerized-workshop$ singularity exec alpine/ ls -l /
+total 4
+drwxr-xr-x    2 root     root          1069 Oct 26 00:05 bin
+drwxr-xr-x   21 root     root          4720 Nov  3 10:57 dev
+lrwxrwxrwx    1 root     root            36 Nov  3 11:06 environment -> .singularity.d/env/90-environment.sh
+drwxr-xr-x   14 root     root           557 Oct 26 00:05 etc
+drwxr-xr-x    1 root     root            60 Nov  3 11:28 home
+drwxr-xr-x    5 root     root           243 Oct 26 00:05 lib
+drwxr-xr-x    5 root     root            53 Oct 26 00:05 media
+drwxr-xr-x    2 root     root             3 Oct 26 00:05 mnt
+dr-xr-xr-x  356 root     root             0 Nov  3 10:56 proc
+drwx------    2 root     root             3 Oct 26 00:05 root
+drwxr-xr-x    2 root     root             3 Oct 26 00:05 run
+drwxr-xr-x    2 root     root           911 Oct 26 00:05 sbin
+lrwxrwxrwx    1 root     root            24 Nov  3 11:06 singularity -> .singularity.d/runscript
+drwxr-xr-x    2 root     root             3 Oct 26 00:05 srv
+dr-xr-xr-x   13 root     root             0 Nov  3 10:56 sys
+drwxrwxrwt   13 root     root          4096 Nov  3 11:24 tmp
+drwxr-xr-x    7 root     root            87 Oct 26 00:05 usr
+drwxr-xr-x   12 root     root           134 Oct 26 00:05 var
+```
+
+## Writing into container
+As you can see Singularity is very strict about who can interact with the image and what can be written there. Previously we run `apk update` and `apk add vim` against our sndboxed container the question is was our change persisted?
+
+Let's check it.
+
+```bash
+user@machine:~/containerized-workshop$ sudo singularity exec alpine/ vim
+/.singularity.d/actions/exec: exec: line 9: vim: not found
+```
+
+As you can see our changes were not persisted. To write into a container just add `--writable` flag.
 
 ```bash
 # Login as a sudo in writable mode
-user@machine:~/containerized-workshop$ sudo singularity shell --writable alpine.img
+user@machine:~/containerized-workshop$ sudo singularity shell --writable alpine/
 Singularity: Invoking an interactive shell within container...
 
-Singularity alpine.img:~> apk update
-Singularity alpine.img:~> apk add vim
-Singularity alpine.img:~> exit
+Singularity> apk update
+Singularity> apk add vim
+Singularity> exit
 
-user@machine:~/containerized-workshop$ singularity shell alpine.img
-Singularity alpine.img:~> vim
-Singularity alpine.img:~> exit
+user@machine:~/containerized-workshop$ singularity exec alpine/ vim
+```
+
+## Building images
+Once we package our software into Singularity container we can start building an image out of containers.
+
+To build Singularity image execute this command.
+
+```bash
+# Build image from container
+user@machine:~$ sudo singularity build alpine.img alpine/
+Building image from sandbox: alpine/
+Building Singularity image...
+Singularity container built: alpine.img
+Cleaning up...
+
+# Check if image
+user@machine:~$ singularity exec alpine.img vim
 ```
 
 ## Singularity file
-We know that it's a bit of a hassle to do everything from terminal. Fortunately, we can automatize our work and create singularity bootstrap file which is equivalent to a Dockerfile.
+We know that it's a bit of a hassle to do everything from terminal. Fortunately, we can automatize our work and create Singularity `recipes file` file which is equivalent to a Dockerfile.
 
 Create Singularity file (`~/containerized-workshop/Singularityfile`) and copy-paste bellow content into it.
 
@@ -659,7 +742,7 @@ From: alpine:3.6
 exec echo "The runscript is the containers default runtime command!"
 
 %labels
-AUTHOR ludd@cbs.dtu.dk
+AUTHOR ludd@bioinformatics.dtu.dk
 
 %post
 
@@ -688,16 +771,15 @@ Once file is created then we will build image from it.
 
 ```bash
 # Recreate alpine image
-user@machine:~/containerized-workshop$ rm alpine.img
-user@machine:~/containerized-workshop$ singularity create alpine.img
-
-# Bootstrap image from file
-user@machine:~/containerized-workshop$ sudo singularity bootstrap alpine.img Singularityfile
+user@machine:~/containerized-workshop$ sudo singularity build analyzer.img Singularity
 
 # Check if it works!
-user@machine:~/containerized-workshop$ singularity exec alpine.img fsa-analyzer /app/data/dna.fsa
+user@machine:~/containerized-workshop$ singularity exec analyzer.img fsa-analyzer /app/data/dna.fsa
 {"nucleotides": {"A": 333, "C": 454, "T": 303, "G": 469}}
 ```
 
 ## Distribute an image
 Send the image it via email, copy it on usb stick or upload to cloud -you name it!, just deliver it to person that you want to share it with.
+
+TODO:
+Singularit HUB
