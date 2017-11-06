@@ -797,7 +797,15 @@ user@machine:~/containerized-workshop$ singularity exec analyzer.img fsa-analyze
 ```
 
 ## Distribute an image
-Send the image it via email, copy it on usb stick or upload to cloud -you name it!, just deliver it to person that you want to share it with.
+[SingulartyHub](https://www.singularity-hub.org/collections/new) is the place where you would like to push your images. You can create an account at SingulartyHub by login with your github. Once you do this you will create a Singularity collection by binding it with your github repository. When SingularityHub will finish building your image whole world will have access to it.  
 
-TODO:
-Singularit HUB
+In order to pull SingulartyHub image into your computer execute this command
+
+```bash
+$ sudo singularity build image-name.img shub://usernmae/repository-name
+
+# example
+$ sudo singularity build fsa-analyzer.img shub://ldynia/containerized-workshop
+```
+
+Alternatively, you can share your image by sending it via email, copy it on usb stick or upload to cloud -you name it!, just deliver it to person that you want to share it with.
