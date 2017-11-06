@@ -558,18 +558,12 @@ Even thought docker rocks! There are some aspects of it (due to its implementati
 
 In this section we will package our `fsa-analyzer` into a singularity image.
 
-# Installation
-```bash
-user@machine:~$ git clone https://github.com/ldynia/containerized-workshop
-user@machine:~$ cd containerized-workshop
-```
-
 ## Container
 Let's create our first singularity container.
 
 ```bash
 # Create an image
-user@machine:~$ sudo singularity build --sandbox alpine/ docker://alpine:3.6
+user@machine:~/containerized-workshop$ sudo singularity build --sandbox alpine/ docker://alpine:3.6
 WARNING: Building sandbox as non-root may result in wrong file permissions
 Docker image path: index.docker.io/library/alpine:3.6
 Cache folder set to /home/ludd/.singularity/docker
@@ -582,7 +576,7 @@ Singularity container built: alpine/
 Cleaning up...
 
 # content of the directory/container is alpine Linux distribution files.
-user@machine:~$ tree -L 1 alpine/
+user@machine:~/containerized-workshop$ tree -L 1 alpine/
 alpine/
 ├── bin
 ├── dev
@@ -734,11 +728,23 @@ drwxrwxr-x  2 ludd ludd     4096 Nov  6 13:40 img
 -rw-rw-r--  1 ludd ludd      630 Nov  6 13:40 Singularity
 
 # Check if image
-user@machine:~$ singularity exec alpine.img vim
+user@machine:~/containerized-workshop$ singularity exec alpine.img vim
+```
+## Binding data
+What if our application depends on a data that is simply to big to be packed into an image. With docker we had chance of tackling this problem with volumes. Singularity uses `bind` flag to mount directory from host into a container.
+
+```bash
+user@machine:~/containerized-workshop$ singularity exec --bind app/data/:/data-x alpine.img ls -l /
+total 8
+drwxr-xr-x    2 root     root          1069 Oct 26 00:05 bin
+drwxrwxr-x    2 ludd     ludd          4096 Nov  6 14:43 data-x
+...
+drwxr-xr-x   12 root     root           134 Oct 26 00:05 var
 ```
 
-## Singularity file
-We know that it's a bit of a hassle to do everything from terminal. Fortunately, we can automatize our work and create Singularity file -`recipes file` which is equivalent to a Dockerfile.
+
+## Recipe file
+We know that it's a bit of a hassle to do everything from terminal. Fortunately, we can automatize our work and create `recipes file` (Singularity file), which is equivalent to a Dockerfile.
 
 Create Singularity file (`~/containerized-workshop/Singularity`) and copy-paste bellow content into it.
 
@@ -796,18 +802,18 @@ user@machine:~/containerized-workshop$ singularity exec analyzer.img fsa-analyze
 {"nucleotides": {"A": 333, "C": 454, "T": 303, "G": 469}}
 ```
 
-## Distribute an image
+## Distributing Singularity Image
 [SingulartyHub](https://www.singularity-hub.org/collections/new) is the place where you would like to push your images. You can create an account at SingulartyHub by login with your github. Once you do this you will create a Singularity collection by binding it with your github repository. When SingularityHub will finish building your image whole world will have access to it.  
 
 In order to pull SingulartyHub image into your computer you have two possibilities execute below commands to see how it works.
 
 ```bash
-$ singularity pull shub://username/repository-name
-$ sudo singularity build image-name.img shub://usernmae/repository-name
+user@machine:~/containerized-workshop$ singularity pull shub://username/repository-name
+user@machine:~/containerized-workshop$ sudo singularity build image-name.img shub://usernmae/repository-name
 
 # example
-$ singularity pull shub://ldynia/containerized-workshop
-$ sudo singularity build fsa-analyzer.img shub://ldynia/containerized-workshop
+user@machine:~/containerized-workshop$ singularity pull shub://ldynia/containerized-workshop
+user@machine:~/containerized-workshop$ sudo singularity build fsa-analyzer.img shub://ldynia/containerized-workshop
 ```
 
 Alternatively, you can share your image by sending it via email, copy it on usb stick or upload to cloud -you name it!, just deliver it to person that you want to share it with.
