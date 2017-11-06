@@ -57,7 +57,7 @@ user@machine:~$ git clone https://github.com/ldynia/containerized-workshop
 user@machine:~$ cd containerized-workshop
 
 # Remove these files
-user@machine:~/containerized-workshop$ rm -rf .gitignore readme.md docker-compose.yml Dockerfile Singularityfile img/ app/scripts/
+user@machine:~/containerized-workshop$ rm -rf .gitignore readme.md docker-compose.yml Dockerfile Singularity img/ app/scripts/
 ```
 
 # Vocabulary
@@ -203,7 +203,7 @@ user@machine:~/containerized-workshop$ docker start angry_swanson
 
 # Hook in into container
 user@machine:~/containerized-workshop$ docker exec -it angry_swanson sh
-/ # ls -l
+/ ls -l
 total 56
 drwxr-xr-x    2 root     root          4096 May 25 15:18 bin
 drwxr-xr-x    5 root     root           360 Jun 17 18:52 dev
@@ -222,7 +222,8 @@ dr-xr-xr-x   13 root     root             0 Jun 17 18:52 sys
 drwxrwxrwt    2 root     root          4096 May 25 15:18 tmp
 drwxr-xr-x   12 root     root          4096 Jun 17 17:53 usr
 drwxr-xr-x   13 root     root          4096 Jun 17 17:52 var
-/ # top
+
+/ top
 Mem: 4979744K used, 3105372K free, 482628K shrd, 852336K buff, 1532500K cached
 CPU:   0% usr   0% sys   0% nic  87% idle  12% io   0% irq   0% sirq
 Load average: 0.22 0.50 0.68 2/853 53
@@ -557,6 +558,12 @@ Even thought docker rocks! There are some aspects of it (due to its implementati
 
 In this section we will package our `fsa-analyzer` into a singularity image.
 
+# Installation
+```bash
+user@machine:~$ git clone https://github.com/ldynia/containerized-workshop
+user@machine:~$ cd containerized-workshop
+```
+
 ## Container
 Let's create our first singularity container.
 
@@ -610,24 +617,15 @@ username
 
 # Update repository list
 Singularity> apk update
-fetch http://dl-cdn.alpinelinux.org/alpine/v3.6/main/x86_64/APKINDEX.tar.gz
-fetch http://dl-cdn.alpinelinux.org/alpine/v3.6/community/x86_64/APKINDEX.tar.gz
-WARNING: Ignoring APKINDEX.24d64ab1.tar.gz: BAD signature
-v3.6.2-196-gac6c8a8f2e [http://dl-cdn.alpinelinux.org/alpine/v3.6/main]
-v3.6.2-197-gb2cee117dd [http://dl-cdn.alpinelinux.org/alpine/v3.6/community]
-OK: 8004 distinct packages available
+ERROR: Unable to lock database: Permission denied
+ERROR: Failed to open apk database: Permission denied
 
 # install vim package
 Singularity> apk add vim
-(5/5) Installing vim (8.0.0595-r0)
-ERROR: Failed to set ownership on etc/vim/vimrc.apk-new: Operation not permitted
-ERROR: Failed to set ownership on usr/bin/view.apk-new: Operation not permitted
-ERROR: Failed to set ownership on usr/bin/xxd.apk-new: Operation not permitted
-ERROR: Failed to set ownership on usr/bin/vimtutor.apk-new: Operation not permitted
-ERROR: Failed to set ownership on usr/bin/rview.apk-new: Operation not permitted
-ERROR: Failed to create usr/bin/vim: No space left on device
-ERROR: vim-8.0.0595-r0: No space left on device
-5 errors; 11 MiB in 13 packages
+ERROR: Unable to lock database: Permission denied
+ERROR: Failed to open apk database: Permission denied
+
+Singularity> exit
 ```
 
 As we can see above we cannot install packages because we don't have sudo access. Let's change this.
@@ -723,29 +721,51 @@ Building Singularity image...
 Singularity container built: alpine.img
 Cleaning up...
 
+# check content of directory
+user@machine:~/containerized-workshop$ ls -l
+total 11444
+drwxr-xr-x 19 root root     4096 Nov  6 13:42 alpine
+-rwxr-xr-x  1 root root 11657247 Nov  6 13:45 alpine.img
+drwxrwxr-x  5 ludd ludd     4096 Nov  6 13:40 app
+-rw-rw-r--  1 ludd ludd      265 Nov  6 13:40 docker-compose.yml
+-rw-rw-r--  1 ludd ludd      493 Nov  6 13:40 Dockerfile
+drwxrwxr-x  2 ludd ludd     4096 Nov  6 13:40 img
+-rw-rw-r--  1 ludd ludd    32639 Nov  6 13:40 readme.md
+-rw-rw-r--  1 ludd ludd      630 Nov  6 13:40 Singularity
+
 # Check if image
 user@machine:~$ singularity exec alpine.img vim
 ```
 
 ## Singularity file
-We know that it's a bit of a hassle to do everything from terminal. Fortunately, we can automatize our work and create Singularity `recipes file` file which is equivalent to a Dockerfile.
+We know that it's a bit of a hassle to do everything from terminal. Fortunately, we can automatize our work and create Singularity file -`recipes file` which is equivalent to a Dockerfile.
 
-Create Singularity file (`~/containerized-workshop/Singularityfile`) and copy-paste bellow content into it.
+Create Singularity file (`~/containerized-workshop/Singularity`) and copy-paste bellow content into it.
 
 ```bash
-# Singularityfile bootstrap file
+# Singularity bootstrap file
 Bootstrap: docker
 From: alpine:3.6
 
-%runscript
-
-exec echo "The runscript is the containers default runtime command!"
-
 %labels
 AUTHOR ludd@bioinformatics.dtu.dk
+Version 1.0
 
+# 'setup' section is executed on the host system outside of the container after the base OS has been installed!
+%setup
+mkdir $SINGULARITY_ROOTFS/app
+
+# Copy files from your host system into the container!
+%files
+app/*   /app
+
+# 'environment' variables are sourced at runtime and not at build time!
+%environment
+MAGIC=abbracadabbra
+export MAGIC
+
+# 'post' section is where you can install, and configure your container.
 %post
-
 # OS Update & Upgrade
 apk update && apk upgrade
 
@@ -755,16 +775,14 @@ apk add \
   python \
   py-pip
 
-# Clone git repo and remove git repo
-git clone https://github.com/ldynia/containerized-workshop
-mv /containerized-workshop/app /app
-rm -rf /containerized-workshop
-
 # Execute script as a global program
 ln -s /app/main.py /usr/local/bin/fsa-analyzer
 chmod +x /usr/local/bin/fsa-analyzer
 
-echo "The post section is where you can install, and configure your container."
+# Executed on 'singularity run img'
+%runscript
+echo "The runscript is the containers default runtime command!"
+echo $MAGIC
 ```
 
 Once file is created then we will build image from it.
