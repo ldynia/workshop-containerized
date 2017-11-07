@@ -808,10 +808,12 @@ user@machine:~/containerized-workshop$ singularity exec analyzer.img fsa-analyze
 In order to pull SingulartyHub image into your computer you have two possibilities execute below commands to see how it works.
 
 ```bash
+user@machine:~/containerized-workshop$ singularity pull docker://username/repository-name
 user@machine:~/containerized-workshop$ singularity pull shub://username/repository-name
 user@machine:~/containerized-workshop$ sudo singularity build image-name.img shub://usernmae/repository-name
 
 # example
+user@machine:~/containerized-workshop$ singularity pull docker://alpine:3.6
 user@machine:~/containerized-workshop$ singularity pull shub://ldynia/containerized-workshop
 user@machine:~/containerized-workshop$ sudo singularity build fsa-analyzer.img shub://ldynia/containerized-workshop
 ```
